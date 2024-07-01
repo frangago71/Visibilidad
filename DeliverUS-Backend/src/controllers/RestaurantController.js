@@ -1,4 +1,6 @@
 import { Restaurant, Product, RestaurantCategory, ProductCategory } from '../models/models.js'
+import Sequelize from 'sequelize' // Solution (pro)
+
 
 const index = async function (req, res) {
   try {
@@ -47,14 +49,24 @@ const create = async function (req, res) {
   }
 }
 
+// Alternative solution
+// const filterNotVisible = (restaurant) => {
+//   return restaurant.products.filter((product) => product.isVisible())
+// }
+
+
 const show = async function (req, res) {
   // Only returns PUBLIC information of restaurants
   try {
+    const currentDate = new Date() // Solution (pro)
     const restaurant = await Restaurant.findByPk(req.params.restaurantId, {
       attributes: { exclude: ['userId'] },
       include: [{
         model: Product,
         as: 'products',
+        where: { // Solution (pro)
+          visibleUntil: { [Sequelize.Op.or]: [{ [Sequelize.Op.eq]: null }, { [Sequelize.Op.gt]: currentDate }] }
+        },
         include: { model: ProductCategory, as: 'productCategory' }
       },
       {
@@ -64,6 +76,8 @@ const show = async function (req, res) {
       order: [[{ model: Product, as: 'products' }, 'order', 'ASC']]
     }
     )
+    // const newProducts = filterNotVisible(restaurant) // Alternative solution
+    // restaurant.setProducts(newProducts) // Alternative solution (it is important to use the set)
     res.json(restaurant)
   } catch (err) {
     res.status(500).send(err)

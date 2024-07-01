@@ -21,8 +21,8 @@ export default function EditProductScreen ({ navigation, route }) {
   const [backendErrors, setBackendErrors] = useState()
   const [product, setProduct] = useState({})
 
-  const [initialProductValues, setInitialProductValues] = useState({ name: null, description: null, price: null, order: null, productCategoryId: null, availability: null, image: null })
-  const validationSchema = yup.object().shape({
+  const [initialProductValues, setInitialProductValues] = useState({ name: null, description: null, price: null, order: null, productCategoryId: null, availability: null, image: null, visibleUntil: null })
+    const validationSchema = yup.object().shape({
     name: yup
       .string()
       .max(255, 'Name too long')
@@ -38,6 +38,10 @@ export default function EditProductScreen ({ navigation, route }) {
       .integer('Please provide an integer order value'),
     availability: yup
       .boolean(),
+    // Solution
+    visibleUntil: yup
+      .date()
+      .nullable(),
     productCategoryId: yup
       .number()
       .positive()
@@ -160,6 +164,12 @@ export default function EditProductScreen ({ navigation, route }) {
               />
               <ErrorMessage name={'productCategoryId'} render={msg => <TextError>{msg}</TextError> }/>
 
+              {/* SOLUTION */}
+              <InputItem
+                name='visibleUntil'
+                label='Visible until:'
+              />
+              
               <TextRegular>Is it available?</TextRegular>
               <Switch
                 trackColor={{ false: GlobalStyles.brandSecondary, true: GlobalStyles.brandPrimary }}
